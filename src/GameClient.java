@@ -3,54 +3,61 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class GameClient {
-	private Socket clientSocket;
-	private PrintWriter out;
+public class GameClient implements AutoCloseable {
+	private static final Logger log = Logger.getLogger(GameClient.class.getName());
+
+	private Socket socket;
 	private BufferedReader in;
+	private PrintWriter out;
 	private Scanner scanner;
 
-	private void startConnection(String ip, int port) throws IOException {
-		clientSocket = new Socket(ip, port);
-		out = new PrintWriter(clientSocket.getOutputStream(), true);
-		in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-		scanner = new Scanner(System.in);
-	}
-
-	private String readInput() {
-		System.out.println("Enter input: ");
-		return scanner.nextLine();
-	}
-
-	private String sendMessage(String msg) throws IOException {
-		out.println(msg);
-		return in.readLine();
-	}
-
-	private boolean stopRequested(String guess) {
-		return "EXIT".equals(guess);
-	}
-
-	private void cleanUp() throws IOException {
+	@Override
+	public void close() throws Exception {
 		in.close();
 		out.close();
-		clientSocket.close();
+		socket.close();
 		scanner.close();
 	}
 
-	public static void main(String[] args) throws IOException {
-		GameClient client = new GameClient();
-		try {
-			client.startConnection("127.0.0.1", 6667);
+	private void startConnection(String ip, int port) throws IOException {
+		socket = new Socket(ip, port);
+		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		out = new PrintWriter(socket.getOutputStream(), true);
+		scanner = new Scanner(System.in);
 
-			String guess = "";
-			while (!client.stopRequested(guess)) {
-				guess = client.readInput();
-				System.out.println(client.sendMessage(guess));
-			}
-		} finally {
-			client.cleanUp();
+		while (true) {
+			if (!sendMessageToServer())
+				return;
+		}
+	}
+
+	private boolean sendMessageToServer() throws IOException {
+		try {
+			String msg = readInput();
+			if ("EXIT".equals(msg))
+				return false;
+			out.println(msg);
+			log.info(in.readLine());
+		} catch (SocketException e) {
+			log.log(Level.WARNING, "Disconnected from server. Shutting down the client.", e);
+			return false;
+		}
+		return true;
+	}
+
+	private String readInput() {
+		log.info("Enter input: ");
+		return scanner.nextLine();
+	}
+
+	public static void main(String[] args) throws Exception {
+		try (GameClient client = new GameClient()) {
+			client.startConnection("127.0.0.1", 6667);
 		}
 	}
 }
