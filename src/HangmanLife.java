@@ -2,4 +2,9 @@
 
 public class HangmanLife {
 
+//	  ____
+//	  |   O
+//	  |  -|-
+//	  |   /\
+// 	__|__
 }

@@ -3,7 +3,7 @@
 public class PlayerWord {
 	private String word;
 	private int life = 6;
-	UserInput user = new UserInput();
+	private char[] usedLetter;
 	
 	public PlayerWord(){
 		this("");
@@ -11,6 +11,7 @@ public class PlayerWord {
 	
 	public PlayerWord(String word) {
 		this.word = word;
+		this.usedLetter = new char[26];
 	}
 	
 	public String getWord() {
@@ -45,43 +46,53 @@ public class PlayerWord {
 	/*
 	 * method to guess the letters in the word entered by user
 	 */
-	public void guessTheLetter() {
+	public String guessTheLetter(char letter) {
 		word = getWord();
 		int j = 0;
-		char letter;
-		char[] usedLetter = new char[25];
 		char[] wordArray = word.toCharArray();
 		String[] underscore = changeToUnderscore();
-		
-		while (life > 0 && hasUnderscore(underscore, wordArray)) {
-			letter = user.inputChar("\nPlayer 2: \nEnter a letter.");
 			
-			if (hasLetter(usedLetter, letter)) {
-				System.out.println("Please enter a letter that is not used");
-			} else {
-				usedLetter[j] = letter;
-				
-				if (hasLetter(wordArray, letter)) {
-					underscore = guessLetter(wordArray, letter, underscore);
-				} else {
-					System.out.println("Letter not in the word.");
-					life--;
-				}	
-				
-			}
-			
-			System.out.println("\nLetters used: " + new String(usedLetter));
-			j++;
-			
-			if (life == 0) {
-				System.out.println("Sorry, no more life left.");
-			} else if (!hasUnderscore(underscore, wordArray)) {
-				System.out.println("Congratulations, you have guessed all the letters in the word.");
-			}
-			
+		if (hasLetter(usedLetter, letter)) {
+			return "Please enter a letter that is not used";
 		}
 		
+		usedLetter[j] = letter;
+		/*
+		 * TODO:
+		 * replace with new record letter method
+		 */
 		
+		if (hasLetter(wordArray, letter)) {
+			underscore = guessLetter(wordArray, letter, underscore);
+			
+			if (!hasUnderscore(underscore, wordArray)) {
+				return "Congratulations, you have guessed all the letters in the word.";
+			}
+			
+			/*
+			 * TODO:
+			 * change String[] to String 
+			 */
+		} else {
+			life--;
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("Letter not in the word.");
+			
+			if (life == 0) {
+				stringBuilder.append("Sorry, no more life left.");
+			} 
+			
+			return stringBuilder.toString();
+		}
+		
+		return null; //TODO: remove when method is fixed
+	}
+	
+	/*
+	 * returns all the guessed letters
+	 */
+	public char[] getLettersUsed() {
+		return usedLetter;
 	}
 	
 	/*
