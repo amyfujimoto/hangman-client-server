@@ -36,11 +36,15 @@ public class PlayerWord {
 				underscore[i] = "_ ";
 			}
 			
+			System.out.print(underscore[i]);
 		}	
 		
 		return underscore;
 	}
 	
+	/*
+	 * method to guess the letters in the word entered by user
+	 */
 	public void guessTheLetter() {
 		word = getWord();
 		int j = 0;
@@ -49,53 +53,80 @@ public class PlayerWord {
 		char[] wordArray = word.toCharArray();
 		String[] underscore = changeToUnderscore();
 		
-		while (life > 0) {
+		while (life > 0 && hasUnderscore(underscore, wordArray)) {
 			letter = user.inputChar("\nPlayer 2: \nEnter a letter.");
-			usedLetter[j] = letter;
 			
-			if (j != 0) {
-				for (char ch : usedLetter) {
-					if (ch == letter) {
-						System.out.println("Please enter a letter that is not used");
-						break;
-					} 
-				}
+			if (hasLetter(usedLetter, letter)) {
+				System.out.println("Please enter a letter that is not used");
+			} else {
+				usedLetter[j] = letter;
+				
+				if (hasLetter(wordArray, letter)) {
+					underscore = guessLetter(wordArray, letter, underscore);
+				} else {
+					System.out.println("Letter not in the word.");
+					life--;
+				}	
+				
 			}
 			
-			for (char c : wordArray) {
-				if (c == letter) {
-					for (int i = 0; i < word.length(); i++) {	
-						
-						if (Character.isWhitespace(wordArray[i])) {
-							underscore[i] = "  ";
-						} else if (wordArray[i] == letter) {
-							underscore[i] = wordArray[i] + " ";
-						} else {
-							underscore[i] = "_ ";
-						}
-						
-						System.out.print(underscore[i]);
-					}
-				} 
-			}
-			
-			System.out.println("\nLetters used: " + usedLetter[j]);
+			System.out.println("\nLetters used: " + new String(usedLetter));
 			j++;
+			
+			if (life == 0) {
+				System.out.println("Sorry, no more life left.");
+			} else if (!hasUnderscore(underscore, wordArray)) {
+				System.out.println("Congratulations, you have guessed all the letters in the word.");
+			}
 			
 		}
 		
-		if (life == 0) {
-			System.out.println("Sorry, no more life left.");
-		}
 		
 	}
 	
+	/*
+	 * checks to see if there are any repeated letters
+	 */
 	private boolean hasLetter(char[] word, char letter) {
 		for (char c : word) {
 			if (c == letter) {
 				return true;
 			}
 		}
+		return false;
+	}
+	
+	/*
+	 * returns word by filling in correct guessed letters
+	 */
+	private String[] guessLetter(char[] wordArray, char letter, String[] underscore) {
+		for (char c : wordArray) {
+			if (c == letter) {
+				for (int i = 0; i < word.length(); i++) {	
+					
+					if (wordArray[i] == letter) {
+						underscore[i] = wordArray[i] + " ";
+					} 
+					System.out.print(underscore[i]);
+					
+				}
+			} 
+			
+		}
+		return underscore;
+	}
+	
+	/*
+	 * checks whether all the letters in the words were guessed
+	 */
+	private boolean hasUnderscore(String[] underscore, char[] wordArray) {
+		
+		for (int i = 0; i < word.length(); i++) {
+			if (underscore[i].equals("_ ")) {
+				return true;
+			}
+		}
+		
 		return false;
 	}
 	
