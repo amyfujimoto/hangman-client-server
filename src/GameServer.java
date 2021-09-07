@@ -9,13 +9,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GameServer implements AutoCloseable {
+	public static final String SERVER_IP = "localhost";
 	private static final Logger log = Logger.getLogger(GameServer.class.getName());
 
 	private ServerSocket serverSocket;
 	private Socket clientSocket;
 	private PrintWriter out;
 	private BufferedReader in;
-	private PlayerWord game;
+	private HangmanGame game;
 
 	@Override
 	public void close() throws Exception {
@@ -27,7 +28,7 @@ public class GameServer implements AutoCloseable {
 
 	private void start(int port) throws IOException {
 		serverSocket = new ServerSocket(port);
-		game = new PlayerWord(new UserInput().inputString("Enter the secret word:"));
+		game = new HangmanGame(new UserInput().inputString("Enter the secret word:"));
 		clientSocket = serverSocket.accept();
 		out = new PrintWriter(clientSocket.getOutputStream(), true);
 		in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -37,7 +38,7 @@ public class GameServer implements AutoCloseable {
 				if (game.isFinished()) {
 					String clientMsg = in.readLine();
 					if (clientMsg.equals("y")) {
-						game = new PlayerWord(new UserInput().inputString("Enter the secret word:"));
+						game = new HangmanGame(new UserInput().inputString("Enter the secret word:"));
 						out.println("New game started. Guess again!");
 					} else if (clientMsg.equals("n")) {
 						out.println("Thanks for playing! Bye!");
@@ -71,7 +72,7 @@ public class GameServer implements AutoCloseable {
 
 			String newState = game.guessTheLetter(clientMsg.charAt(0));
 			log.info(newState);
-			out.println(newState + " Letters used: " + game.getLettersUsed());
+			out.println(newState + " Letters used: " + game.getLettersUsed() + " Lives left: " + game.getLife());
 		} catch (SocketException e) {
 			log.log(Level.WARNING, "Client disconnected. Shutting down the server.", e);
 			return false;

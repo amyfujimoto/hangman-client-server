@@ -52,7 +52,7 @@ public class GameClient implements AutoCloseable {
 
 	public static void main(String[] args) throws Exception {
 		try (GameClient client = new GameClient()) {
-			client.startConnection("127.0.0.1", 6667);
+			client.startConnection(GameServer.SERVER_IP, 6667);
 		}
 	}
 }
