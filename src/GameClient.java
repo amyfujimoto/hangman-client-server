@@ -29,6 +29,7 @@ public class GameClient implements AutoCloseable {
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new PrintWriter(socket.getOutputStream(), true);
 		scanner = new Scanner(System.in);
+		System.out.println("testtest");
 
 		while (true) {
 			if (!sendMessageToServer())
@@ -57,7 +58,7 @@ public class GameClient implements AutoCloseable {
 
 	public static void main(String[] args) throws Exception {
 		try (GameClient client = new GameClient()) {
-			client.startConnection("127.0.0.1", 6667);
+			client.startConnection("192.168.125.225", 6667);
 		}
 	}
 }

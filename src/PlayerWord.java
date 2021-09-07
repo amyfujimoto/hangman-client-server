@@ -4,6 +4,8 @@ public class PlayerWord {
 	private String word;
 	private int life = 6;
 	private char[] usedLetter;
+	private String[] underscore;
+	
 	
 	public PlayerWord(){
 		this("");
@@ -11,6 +13,7 @@ public class PlayerWord {
 	
 	public PlayerWord(String word) {
 		this.word = word;
+		this.underscore = initUnderscore();
 		this.usedLetter = new char[26];
 		for (int i = 0; i < 26; i++) {
 			usedLetter[i] = 1;
@@ -31,18 +34,15 @@ public class PlayerWord {
 	 * method to guess the letters in the word entered by user
 	 */
 	public String guessTheLetter(char letter) {
-		word = getWord();
 		char[] wordArray = word.toCharArray();
-		String[] underscore = changeToUnderscore();
 			
-		correctLetter(letter);
+		validate(letter);
+		record(letter);
 		
-		usedLetter = recordLetter(letter, usedLetter);
-		
-		if (hasLetter(wordArray, letter)) {
-			underscore = guessLetter(wordArray, letter, underscore);
+		if (contains(wordArray, letter)) {
+			underscore = guessLetter(letter, underscore);
 			
-			if (!hasUnderscore(underscore, wordArray)) {
+			if (!hasUnderscore(underscore)) {
 				return "Congratulations, you have guessed all the letters in the word.";
 			}
 			
@@ -65,8 +65,8 @@ public class PlayerWord {
 	/*
 	 * checks to see if the entered char is valid.
 	 */
-	private String correctLetter(char letter) {
-		while (hasLetter(usedLetter, letter) || Character.isDigit(letter)) {
+	private String validate(char letter) {
+		while (contains(usedLetter, letter) || Character.isDigit(letter)) {
 			return "Please enter a valid letter.";
 		}
 		return null;
@@ -75,8 +75,7 @@ public class PlayerWord {
 	/*
 	 * Changes the user inputted word to underscore to start the game
 	 */
-	private String[] changeToUnderscore() {
-		word = getWord();
+	private String[] initUnderscore() {
 		char[] wordArray = word.toCharArray();
 		String[] underscore = new String[word.length()];
 		
@@ -86,8 +85,6 @@ public class PlayerWord {
 			} else {
 				underscore[i] = "_ ";
 			}
-			
-			System.out.print(underscore[i]);
 		}	
 		
 		return underscore;
@@ -110,30 +107,40 @@ public class PlayerWord {
 	/*
 	 * returns all the guessed letters
 	 */
-	public char[] getLettersUsed() {
-		return usedLetter;
+	public String getLettersUsed() {
+		StringBuilder stringBuilder = new StringBuilder();
+		
+		for (char c : usedLetter) {
+			if (c != '1') {
+				stringBuilder.append(usedLetter);
+			} else {
+				break;
+			}
+			
+		}
+		
+		return stringBuilder.toString();
+		
 	}
 	
 	/*
 	 * records all guesses and returns them
 	 */
-	private char[] recordLetter(char letter, char[] usedArray) {
+	private void record(char letter) {
 		
 		for(int i = 0; i < 26; i++) {
-			if (usedArray[i] == 1) {
-				usedArray[i] = letter;
-				return usedArray;
+			if (usedLetter[i] == 1) {
+				usedLetter[i] = letter;
+				break;
 			}
 		}
-		
-		return usedArray;
 		
 	}
 	
 	/*
-	 * checks to see if there are any repeated letters
+	 * checks to see if letter appears in the word
 	 */
-	private boolean hasLetter(char[] word, char letter) {
+	private boolean contains(char[] word, char letter) {
 		for (char c : word) {
 			if (c == letter) {
 				return true;
@@ -145,16 +152,10 @@ public class PlayerWord {
 	/*
 	 * returns word by filling in correct guessed letters
 	 */
-	private String[] guessLetter(char[] wordArray, char letter, String[] underscore) {
-		for (char c : wordArray) {
-			if (c == letter) {
-				for (int i = 0; i < word.length(); i++) {	
-					
-					if (wordArray[i] == letter) {
-						underscore[i] = wordArray[i] + " ";
-					} 
-					
-				}
+	private String[] guessLetter(char letter, String[] underscore) {
+		for (int i = 0; i < word.length(); ++i) {
+			if (word.charAt(i) == letter) {
+				underscore[i] = letter + " ";
 			} 
 			
 		}
@@ -164,7 +165,7 @@ public class PlayerWord {
 	/*
 	 * checks whether all the letters in the words were guessed
 	 */
-	private boolean hasUnderscore(String[] underscore, char[] wordArray) {
+	private boolean hasUnderscore(String[] underscore) {
 		
 		for (int i = 0; i < word.length(); i++) {
 			if (underscore[i].equals("_ ")) {

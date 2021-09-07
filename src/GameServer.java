@@ -15,6 +15,7 @@ public class GameServer implements AutoCloseable {
 	private Socket clientSocket;
 	private PrintWriter out;
 	private BufferedReader in;
+	private PlayerWord game;
 
 	@Override
 	public void close() throws Exception {
@@ -26,6 +27,7 @@ public class GameServer implements AutoCloseable {
 
 	private void start(int port) throws IOException {
 		serverSocket = new ServerSocket(port);
+		game = new PlayerWord(new UserInput().inputString("Enter the secret word:"));
 		clientSocket = serverSocket.accept();
 		out = new PrintWriter(clientSocket.getOutputStream(), true);
 		in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -43,8 +45,11 @@ public class GameServer implements AutoCloseable {
 				log.log(Level.WARNING, "Client disconnected. Shutting down the server.");
 				return false;
 			}
-			log.info(String.format("Client sent: \'%s\'", clientMsg));
-			out.println("Msg received.");
+			//log.info(String.format("Client sent: \'%s\'", clientMsg));
+			String newState = game.guessTheLetter(clientMsg.charAt(0));
+			log.info(newState);
+			log.info(game.getLettersUsed());
+			out.println(newState + game.getLettersUsed());
 		} catch (SocketException e) {
 			log.log(Level.WARNING, "Client disconnected. Shutting down the server.", e);
 			return false;
