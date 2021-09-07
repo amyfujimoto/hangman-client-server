@@ -12,20 +12,70 @@ public class PlayerWord {
 	public PlayerWord(String word) {
 		this.word = word;
 		this.usedLetter = new char[26];
+		for (int i = 0; i < 26; i++) {
+			usedLetter[i] = 1;
+		}
 	}
 	
+	// Getter for word
 	public String getWord() {
 		return word;
 	}
 	
+	// Setter for word
 	public void setWord(String word) {
 		this.word = word;
 	}
 
 	/*
+	 * method to guess the letters in the word entered by user
+	 */
+	public String guessTheLetter(char letter) {
+		word = getWord();
+		char[] wordArray = word.toCharArray();
+		String[] underscore = changeToUnderscore();
+			
+		correctLetter(letter);
+		
+		usedLetter = recordLetter(letter, usedLetter);
+		
+		if (hasLetter(wordArray, letter)) {
+			underscore = guessLetter(wordArray, letter, underscore);
+			
+			if (!hasUnderscore(underscore, wordArray)) {
+				return "Congratulations, you have guessed all the letters in the word.";
+			}
+			
+			return toString(underscore);
+			
+		} else {
+			life--;
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("Letter not in the word.");
+			
+			if (life == 0) {
+				stringBuilder.append("Sorry, no more life left.");
+			} 
+			
+			return stringBuilder.toString();
+		}
+	
+	}
+	
+	/*
+	 * checks to see if the entered char is valid.
+	 */
+	private String correctLetter(char letter) {
+		while (hasLetter(usedLetter, letter) || Character.isDigit(letter)) {
+			return "Please enter a valid letter.";
+		}
+		return null;
+	}
+	
+	/*
 	 * Changes the user inputted word to underscore to start the game
 	 */
-	public String[] changeToUnderscore() {
+	private String[] changeToUnderscore() {
 		word = getWord();
 		char[] wordArray = word.toCharArray();
 		String[] underscore = new String[word.length()];
@@ -44,48 +94,17 @@ public class PlayerWord {
 	}
 	
 	/*
-	 * method to guess the letters in the word entered by user
+	 * converts string array to string format
 	 */
-	public String guessTheLetter(char letter) {
-		word = getWord();
-		int j = 0;
-		char[] wordArray = word.toCharArray();
-		String[] underscore = changeToUnderscore();
-			
-		if (hasLetter(usedLetter, letter)) {
-			return "Please enter a letter that is not used";
-		}
-		
-		usedLetter[j] = letter;
-		/*
-		 * TODO:
-		 * replace with new record letter method
-		 */
-		
-		if (hasLetter(wordArray, letter)) {
-			underscore = guessLetter(wordArray, letter, underscore);
-			
-			if (!hasUnderscore(underscore, wordArray)) {
-				return "Congratulations, you have guessed all the letters in the word.";
-			}
-			
-			/*
-			 * TODO:
-			 * change String[] to String 
-			 */
-		} else {
-			life--;
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("Letter not in the word.");
-			
-			if (life == 0) {
-				stringBuilder.append("Sorry, no more life left.");
-			} 
-			
-			return stringBuilder.toString();
-		}
-		
-		return null; //TODO: remove when method is fixed
+	private String toString(String[] stringArray) {
+		 StringBuffer stringBuffer = new StringBuffer();
+		 
+	      for(int i = 0; i < stringArray.length; i++) {
+	         stringBuffer.append(stringArray[i]);
+	      }
+	      
+	      return stringBuffer.toString();
+	      
 	}
 	
 	/*
@@ -93,6 +112,22 @@ public class PlayerWord {
 	 */
 	public char[] getLettersUsed() {
 		return usedLetter;
+	}
+	
+	/*
+	 * records all guesses and returns them
+	 */
+	private char[] recordLetter(char letter, char[] usedArray) {
+		
+		for(int i = 0; i < 26; i++) {
+			if (usedArray[i] == 1) {
+				usedArray[i] = letter;
+				return usedArray;
+			}
+		}
+		
+		return usedArray;
+		
 	}
 	
 	/*
@@ -118,7 +153,6 @@ public class PlayerWord {
 					if (wordArray[i] == letter) {
 						underscore[i] = wordArray[i] + " ";
 					} 
-					System.out.print(underscore[i]);
 					
 				}
 			} 

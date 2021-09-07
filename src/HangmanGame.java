@@ -9,7 +9,7 @@ public class HangmanGame {
 		while (shouldContinue.equalsIgnoreCase("y")) {
 			word = user.inputString("Player 1: \nPlease enter a word.");
 			PlayerWord input = new PlayerWord(word);
-//			input.guessTheLetter();
+			input.guessTheLetter(user.inputChar("input Letter"));
 		
 			shouldContinue = user.inputString("\nPlay again? (y/n)");
 		}
