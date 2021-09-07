@@ -29,7 +29,6 @@ public class GameClient implements AutoCloseable {
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new PrintWriter(socket.getOutputStream(), true);
 		scanner = new Scanner(System.in);
-		System.out.println("testtest");
 
 		while (true) {
 			if (!sendMessageToServer())
@@ -39,7 +38,7 @@ public class GameClient implements AutoCloseable {
 
 	private boolean sendMessageToServer() throws IOException {
 		try {
-			String msg = readInput();
+			String msg = new UserInput().inputString("Guess a letter: ");
 			if ("EXIT".equals(msg))
 				return false;
 			out.println(msg);
@@ -51,14 +50,9 @@ public class GameClient implements AutoCloseable {
 		return true;
 	}
 
-	private String readInput() {
-		log.info("Enter input: ");
-		return scanner.nextLine();
-	}
-
 	public static void main(String[] args) throws Exception {
 		try (GameClient client = new GameClient()) {
-			client.startConnection("192.168.125.225", 6667);
+			client.startConnection("127.0.0.1", 6667);
 		}
 	}
 }

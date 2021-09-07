@@ -33,23 +33,45 @@ public class GameServer implements AutoCloseable {
 		in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
 		while (true) {
-			if (!handleClientMsg())
-				break;
+			if (!handleClientMsg()) {
+				if (game.isFinished()) {
+					String clientMsg = in.readLine();
+					if (clientMsg.equals("y")) {
+						game = new PlayerWord(new UserInput().inputString("Enter the secret word:"));
+						out.println("New game started. Guess again!");
+					} else if (clientMsg.equals("n")) {
+						out.println("Thanks for playing! Bye!");
+						break;
+					} else {
+						out.println("Invalid entry. Play again? (y/n)");
+					}
+				} else {
+					// The client disconnected, stop the game.
+					break;
+				}
+			}
 		}
 	}
 
+	/**
+	 * Returns whether the game is in progress
+	 */
 	private boolean handleClientMsg() throws IOException {
 		try {
+			if (game.isFinished()) {
+				return false;
+			}
+
 			String clientMsg = in.readLine();
+
 			if (clientMsg == null) {
 				log.log(Level.WARNING, "Client disconnected. Shutting down the server.");
 				return false;
 			}
-			//log.info(String.format("Client sent: \'%s\'", clientMsg));
+
 			String newState = game.guessTheLetter(clientMsg.charAt(0));
 			log.info(newState);
-			log.info(game.getLettersUsed());
-			out.println(newState + game.getLettersUsed());
+			out.println(newState + " Letters used: " + game.getLettersUsed());
 		} catch (SocketException e) {
 			log.log(Level.WARNING, "Client disconnected. Shutting down the server.", e);
 			return false;

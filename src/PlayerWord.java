@@ -43,7 +43,7 @@ public class PlayerWord {
 			underscore = guessLetter(letter, underscore);
 			
 			if (!hasUnderscore(underscore)) {
-				return "Congratulations, you have guessed all the letters in the word.";
+				return "Congratulations, you have guessed all the letters in the word. Play again? (y/n)";
 			}
 			
 			return toString(underscore);
@@ -51,10 +51,10 @@ public class PlayerWord {
 		} else {
 			life--;
 			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("Letter not in the word.");
+			stringBuilder.append(letter).append(" not in the word.");
 			
 			if (life == 0) {
-				stringBuilder.append("Sorry, no more life left.");
+				stringBuilder.append("Sorry, no more life left. Play again? (y/n)");
 			} 
 			
 			return stringBuilder.toString();
@@ -190,4 +190,7 @@ public class PlayerWord {
 		return guess;
 	}
 	
+	public boolean isFinished() {
+		return !hasUnderscore(underscore) || life <= 0;
+	}
 }
